@@ -17,17 +17,45 @@ Replace this paragraph with your own summary of what your version does.
 
 ## How The System Works
 
-Explain your design in plain language.
+**How real systems do it.** Big platforms like Spotify and YouTube predict what you'll love next using two main ideas. *Collaborative filtering* looks at other users' behavior — likes, skips, plays, and playlists — and recommends what people with similar taste enjoyed, even if it can't "hear" the song. *Content-based filtering* looks at the attributes of the songs themselves — genre, mood, energy, tempo — and recommends songs that are similar to what you already like. Real systems blend both (a *hybrid*) so they can handle brand-new songs and still surprise you.
 
-Some prompts to answer:
+**What my version prioritizes.** My recommender is **content-based**. It compares a user's stated taste profile against each song's attributes and scores how well they match. I prioritize **mood** most, because that's what most defines a song's "vibe" for me, followed by genre, then how close the song's energy is to what the user wants, and finally whether it's acoustic.
 
-- What features does each `Song` use in your system
-  - For example: genre, mood, energy, tempo
-- What information does your `UserProfile` store
-- How does your `Recommender` compute a score for each song
-- How do you choose which songs to recommend
+**How scoring works.** For each song I compute a single score:
 
-You can include a simple diagram or bullet list if helpful.
+- **mood** matches favorite mood → **+3.0** (weighted highest, on purpose)
+- **genre** matches favorite genre → **+2.0**
+- **energy** closeness → **+2.0 × (1 − |song energy − target energy|)**
+  (rewards songs *close* to the target, not just high-energy ones)
+- **acoustic** preference matches → **+1.0**
+
+**How I choose what to recommend.** Scoring rates one song at a time, so the score only becomes meaningful when compared to others. The **ranking rule** sorts all songs by score (highest first) and returns the top `k`. Scoring is like grading each song; ranking is the "honor roll" I actually show the user.
+
+### Features used
+
+**`Song`** stores: `genre`, `mood`, `energy`, `tempo_bpm`, `valence`,
+`danceability`, `acousticness` (plus `id`, `title`, `artist`). My scoring uses
+**genre, mood, energy, and acousticness**.
+
+**`UserProfile`** stores: `favorite_genre`, `favorite_mood`, `target_energy`, and
+`likes_acoustic` (a yes/no preference for acoustic songs).
+
+**Example profile I test with:** `genre=jazz`, `mood=dreamy`, `target_energy=0.3`,
+`likes_acoustic=True`.
+
+### Potential biases I expect
+
+- **Mood can override genre.** Because mood is weighted highest (3.0 > 2.0), the
+  top pick for a jazz-loving user can actually be a *classical* song that matches
+  the mood. This is intended, but it means "favorite genre" is a weaker signal
+  than a user might assume.
+- **Sparse categories do little work.** Genres/moods that appear on only one song
+  (e.g. jazz) can only ever reward that single song, so the feature barely
+  discriminates across the catalog.
+- **Small catalog.** With only 19 songs, a single strong match can dominate, and
+  whole genres are represented by one example.
+- **No understanding of content.** It scores tags and numbers only — it can't hear
+  the music, read lyrics, or know language or artist.
 
 ---
 
@@ -68,15 +96,29 @@ You can add more tests in `tests/test_recommender.py`.
 
 ## Sample Recommendation Output
 
-Paste a sample of your recommender's output here as a text block so a reader can see what it produces:
+Sample output from `python -m src.main` for the default pop/happy profile:
 
 ```
-# e.g.:
-# User profile: genre=indie, mood=chill, energy=low
-# Recommendations:
-#   1. ...
-#   2. ...
-#   3. ...
+Loaded songs: 19
+
+User profile: {'genre': 'pop', 'mood': 'happy', 'energy': 0.8}
+
+Top recommendations:
+
+1. Sunrise City by Neon Echo  (Score: 6.96)
+   Because: mood match: happy (+3.0); genre match: pop (+2.0); energy 0.82 near target 0.8 (+1.96)
+
+2. Rooftop Lights by Indigo Parade  (Score: 4.92)
+   Because: mood match: happy (+3.0); energy 0.76 near target 0.8 (+1.92)
+
+3. Gym Hero by Max Pulse  (Score: 3.74)
+   Because: genre match: pop (+2.0); energy 0.93 near target 0.8 (+1.74)
+
+4. Night Drive Loop by Neon Echo  (Score: 1.90)
+   Because: energy 0.75 near target 0.8 (+1.90)
+
+5. Concrete Jungle by Rhyme Theory  (Score: 1.80)
+   Because: energy 0.7 near target 0.8 (+1.80)
 ```
 
 **Screenshot or video** *(optional)*: <!-- Insert a screenshot or demo video link here -->
