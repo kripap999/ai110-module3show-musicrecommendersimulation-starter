@@ -127,11 +127,14 @@ Top recommendations:
 
 ## Experiments You Tried
 
-Use this section to document the experiments you ran. For example:
-
-- What happened when you changed the weight on genre from 2.0 to 0.5
-- What happened when you added tempo or valence to the score
-- How did your system behave for different types of users
+- **Doubled energy weight, halved genre weight** (energy 2.0 → 4.0, genre 2.0 → 1.0).
+  The #1 pick for every profile stayed the same because mood (3.0) still dominated,
+  but positions 3–5 became energy-driven and genre matches barely mattered. The
+  results were *different*, not clearly *more accurate*.
+- **Stress-tested four profiles** (High-Energy Pop, Chill Lofi, Deep Intense Rock,
+  and an adversarial "metal + sad + high energy"). Opposite profiles produced
+  clearly opposite lists; the adversarial one exposed that the highest-weighted
+  feature (mood) wins under conflicting preferences. Details in `model_card.md`.
 
 ---
 
