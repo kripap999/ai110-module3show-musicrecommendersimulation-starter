@@ -190,8 +190,6 @@ controls the top result.
 
 ## 9. Personal Reflection  
 
-> _Draft in my own words — edit freely so it sounds like me._
-
 **Biggest learning moment.** Building VibeMatch showed me that a recommender isn't
 magic — it's just a scoring rule plus a sort. The "intelligence" lives entirely in
 which features I chose and how much weight I gave each one. The clearest moment was
@@ -209,7 +207,7 @@ recommendations against my own intuition, and I caught a real bug where the star
 confirmed things actually worked instead of just trusting the generated code.
 
 **What surprised me.** It surprised me how a handful of simple `if` checks and one
-subtraction can produce output that genuinely "feels" like a recommendation. There's
+subtraction can produce output that "feels" like a recommendation. There's
 no deep learning here, yet the ranked, explained list looks a lot like what a real
 app shows. It changed how I think about apps like Spotify — when a recommendation
 feels "off," it's probably not broken, it's just optimizing for something different
